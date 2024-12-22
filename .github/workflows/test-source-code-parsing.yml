@@ -1,0 +1,34 @@
+name: Test Source Code Parser
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  scp-code-quality-check:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python-poetry
+
+      - name: Lint check with Ruff
+        run: poetry run ruff check --output-format=github .
+        continue-on-error: false
+
+      - name: Lint format with Ruff
+        run: poetry run ruff format --check .
+        continue-on-error: false
+
+      - name: Check typing with Mypy
+        run: poetry run mypy --pretty .
+        continue-on-error: false
