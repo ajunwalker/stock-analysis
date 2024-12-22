@@ -9,6 +9,8 @@ readme = "README.md"
 python = "^3.11"
 requests = "^2.32.3"
 jupyter = "^1.1.1"
+types-requests = "^2.32.0.20241016"
+pandas-stubs = "^2.2.3.241126"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "1.11.2"
@@ -18,3 +20,8 @@ ruff = "0.6.5"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["E501"]
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]
