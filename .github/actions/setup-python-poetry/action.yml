@@ -1,0 +1,15 @@
+name: Setup Python and Install Dependencies
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pipx install poetry
+        poetry install --sync

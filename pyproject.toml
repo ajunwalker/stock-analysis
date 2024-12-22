@@ -6,10 +6,22 @@ authors = ["Andrew Walker <andrew@ajunwalker.io>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
+requests = "^2.32.3"
+jupyter = "^1.1.1"
+types-requests = "^2.32.0.20241016"
+pandas-stubs = "^2.2.3.241126"
 
+[tool.poetry.group.dev.dependencies]
+mypy = "1.11.2"
+ruff = "0.6.5"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["E501"]
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]
