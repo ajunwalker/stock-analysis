@@ -2,7 +2,7 @@ import asyncio
 import datetime
 from typing import Optional
 
-import fmpsdk
+import fmpsdk  # type: ignore
 import pandas as pd
 
 from analysis.api.base_api import BaseAPI
