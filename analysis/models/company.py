@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 
 import pandas as pd
@@ -42,7 +44,10 @@ class Company:
         self.estimates = estimates
 
     @classmethod
-    async def load(cls, symbol: str) -> "Company":
+    async def load(cls, symbol: str) -> Company:
+        """
+        Loads all data pertaining to a ticker symbol.
+        """
         tasks = [
             CompanyAPI.get_balance_sheet_statements(symbol),
             CompanyAPI.get_income_statements(symbol),

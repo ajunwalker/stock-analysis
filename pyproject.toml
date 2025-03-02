@@ -11,6 +11,8 @@ requests = "^2.32.3"
 jupyter = "^1.1.1"
 types-requests = "^2.32.0.20241016"
 pandas-stubs = "^2.2.3.241126"
+streamlit = "^1.41.1"
+langchain-ollama = "^0.2.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "1.11.2"
@@ -22,6 +24,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff.lint.per-file-ignores]
 "*.ipynb" = ["E501"]
+
+[tool.ruff.lint]
+extend-select = ["D102", "I"]
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]

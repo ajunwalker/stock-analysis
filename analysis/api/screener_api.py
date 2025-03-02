@@ -14,11 +14,18 @@ from analysis.utils import format_number
 class ScreenerAPI(BaseAPI):
     @staticmethod
     async def get_company_profiles(symbols: list[str]):
+        """
+        Builds a details company profile for a given list of ticker symbols.
+        """
         tasks = [Company.load(symbol) for symbol in symbols]
         profiles: list[Company] = list(await asyncio.gather(*tasks))
 
         compiled = []
         for company in profiles:
+            if company.quote["earningsAnnouncement"]:
+                earnings = company.quote["earningsAnnouncement"][:10]
+            else:
+                earnings = "N/A"
             compiled.append(
                 {
                     "Symbol": company.profile["symbol"],
@@ -26,7 +33,6 @@ class ScreenerAPI(BaseAPI):
                     "Cap": "$" + format_number(company.profile["mktCap"]),
                     "IPO Date": company.profile["ipoDate"],
                     "Employees": company.profile["fullTimeEmployees"],
-                    # "Exchange": profile.profile["exchangeShortName"],
                     "1 Week Change": CompanyData.get_daily_change(company, 5),
                     "1 Month Change": CompanyData.get_daily_change(company, 20),
                     "3 Month Change": CompanyData.get_daily_change(company, 60),
@@ -40,11 +46,31 @@ class ScreenerAPI(BaseAPI):
                     "P/B": CompanyData.get_last_ratio_value(
                         company, "priceToBookRatio"
                     ),
-                    "Earnings": company.quote["earningsAnnouncement"][:10],
+                    "Earnings": earnings,
                 }
             )
 
         return compiled
+
+    @staticmethod
+    async def populate_profiles(symbols: list[str]):
+        """Builds a dataframe containing the profile of all provided tickers."""
+        if len(symbols) == 0:
+            return pd.DataFrame()
+
+        responses = []
+
+        window = 10
+        for idx in range(0, len(symbols), window):
+            response = await ScreenerAPI.get_company_profiles(
+                symbols[idx: idx + window]
+            )
+            responses.extend(response)
+
+        profiles_df = pd.DataFrame(responses)
+        profiles_df.set_index("Symbol", inplace=True)
+
+        return profiles_df
 
     @staticmethod
     async def search(
@@ -60,6 +86,22 @@ class ScreenerAPI(BaseAPI):
         industry: Optional[str] = None,
         limit: Optional[int] = None,
     ) -> pd.DataFrame:
+        """
+        Searches for a list of stocks matching the provided criteria.
+
+        :param market_cap_more_than: Market capitalization is more than
+        :param market_cap_less_than: Market capitalization is less than
+        :param pe_ratio_more_than: Price-to-Earnings ratio is more than
+        :param pe_ratio_less_than: Price-to-Earnings ratio is less than
+        :param pb_ratio_more_than: Price-to-Book ratio is more than
+        :param pb_ratio_less_than: Price-to-Book ratio is less than
+        :param revenue_change_more_than: Revenue change percentage over last two quarters is more than
+        :param country: Exchange country
+        :param sector: Company sector
+        :param industry: Company industry
+        :param limit: Number of results to return
+        :return: Results that match the query
+        """
         result = fmpsdk.stock_screener(
             apikey=BaseAPI._get_api_key(),
             market_cap_lower_than=market_cap_less_than,
@@ -72,6 +114,11 @@ class ScreenerAPI(BaseAPI):
             limit=limit,
         )
 
+        if len(result) == 0:
+            return pd.DataFrame()
+
+        print(result)
+
         df = pd.DataFrame(result)
         df = df.loc[df["exchangeShortName"].isin(["NASDAQ", "AMEX", "NYSE"])]
         symbols = list(df["symbol"])
@@ -81,7 +128,7 @@ class ScreenerAPI(BaseAPI):
         window = 10
         for idx in range(0, len(symbols), window):
             response = await ScreenerAPI.get_company_profiles(
-                symbols[idx : idx + window]
+                symbols[idx: idx + window]
             )
             responses.extend(response)
 
@@ -103,5 +150,7 @@ class ScreenerAPI(BaseAPI):
             profiles_df = profiles_df.loc[
                 profiles_df["Revenue Change (%)"] > revenue_change_more_than
             ]
+
+        profiles_df.set_index("Symbol")
 
         return profiles_df
