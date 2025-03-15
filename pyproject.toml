@@ -13,6 +13,9 @@ types-requests = "^2.32.0.20241016"
 pandas-stubs = "^2.2.3.241126"
 streamlit = "^1.41.1"
 langchain-ollama = "^0.2.3"
+sec_edgar_api = "^1.1.0"
+sec-parsers = {extras = ["all"], version = "^0.549"}
+beautifulsoup4 = "^4.13.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "1.11.2"
@@ -30,3 +33,6 @@ extend-select = ["D102", "I"]
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]
+https://archive.md/https://www.linkedin.com/in/jess-manion-2929202b4
+
+https://au.linkedin.com/in/jess-manion-2929202b4?trk=people-guest_people_search-card
